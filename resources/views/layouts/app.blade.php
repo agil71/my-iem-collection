@@ -9,18 +9,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Chart.js for Frequency Response Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- CKEditor (hanya dipanggil di halaman yang butuh) -->
     @stack('ckhead')
 
+    <!-- Page-specific CSS -->
+    @stack('home-css')
+
     <style>
-        /* ============================================
-           CSS VARIABLES
+/* ============================================
+            CSS VARIABLES - LIGHT MODE
         ============================================ */
-        :root {
+        :root, [data-theme="light"] {
             --bg: #FFF4E0;
             --card-bg: #FFFFFF;
+            --text: #1a1a1a;
+            --text-muted: #666666;
             --black: #1a1a1a;
             --border: 3px solid var(--black);
             --border-light: 2px solid var(--black);
@@ -37,6 +44,32 @@
             --purple: #C77DFF;
             --font-main: 'Space Grotesk', sans-serif;
             --font-mono: 'Space Mono', monospace;
+            --form-bg: #FAFAFA;
+            --form-focus: #FFFFFF;
+        }
+
+        /* ============================================
+            CSS VARIABLES - DARK MODE
+        ============================================ */
+        [data-theme="dark"] {
+            --bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #f5f0e8;
+            --text-muted: #a0a0a0;
+            --black: #f5f0e8;
+            --border: 3px solid #f5f0e8;
+            --border-light: 2px solid #f5f0e8;
+            --shadow: 6px 6px 0px #f5f0e8;
+            --shadow-sm: 4px 4px 0px #f5f0e8;
+            --shadow-hover: 2px 2px 0px #f5f0e8;
+            --yellow: #FFD93D;
+            --pink: #FF6B9D;
+            --cyan: #4DD0E0;
+            --lime: #B8FF56;
+            --orange: #FFB347;
+            --purple: #BB86FC;
+            --form-bg: #222222;
+            --form-focus: #333333;
         }
 
         /* ============================================
@@ -47,7 +80,7 @@
         body {
             font-family: var(--font-main);
             background-color: var(--bg);
-            color: var(--black);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -55,6 +88,7 @@
         }
 
         a { color: inherit; text-decoration: none; }
+        a:hover { color: var(--pink); }
 
         /* ============================================
            BACKGROUND
@@ -135,10 +169,34 @@
 
         .brand:hover .brand-icon { transform: rotate(-8deg) scale(1.05); }
 
+        .nav-right .btn-sm { padding: 8px 12px; font-size: 12px; }
+
+        .btn-cart { position: relative; }
+
+        .btn-cart .cart-count {
+            position: static;
+            margin-left: 4px;
+            background: var(--pink);
+            color: var(--black);
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: var(--border-light);
+            padding: 0 4px;
+        }
+
+        .cart-count:empty,
+        .cart-count[data-count="0"] { display: none; }
+
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 8px;
         }
 
         .user-badge {
@@ -166,22 +224,21 @@
         .btn-logout {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
+            gap: 4px;
+            padding: 8px 12px;
             background: var(--pink);
             border: var(--border-light);
             border-radius: 8px;
             box-shadow: 2px 2px 0px var(--black);
-            font-family: var(--font-main);
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            transition: box-shadow 0.15s, transform 0.15s;
+            transition: all 0.2s;
             color: var(--black);
+            text-decoration: none;
         }
 
-        .btn-logout:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--black); }
-        .btn-logout:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--black); }
+        .btn-logout:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0px var(--black); }
 
         /* ============================================
            MAIN CONTENT
@@ -292,6 +349,23 @@
         .iem-card:nth-child(5) { animation-delay: 0.2s; }
         .iem-card:nth-child(6) { animation-delay: 0.25s; }
 
+        .iem-card { position: relative; overflow: hidden; }
+
+        .iem-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--yellow), var(--pink), var(--cyan));
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .iem-card:hover::before { opacity: 1; }
+
         .card-image {
             width: 100%;
             aspect-ratio: 4/3;
@@ -299,11 +373,18 @@
             border-bottom: var(--border);
             background: #f5f0e8;
             display: block;
+            transition: transform 0.4s ease;
         }
+
+        .iem-card:hover .card-image { transform: scale(1.05); }
 
         .card-body {
             padding: 18px;
+            position: relative;
+            background: linear-gradient(180deg, var(--card-bg) 0%, #fafafa 100%);
         }
+
+        html[data-theme="dark"] .card-body { background: linear-gradient(180deg, var(--card-bg) 0%, #2a2a2a 100%); }
 
         .card-title {
             font-size: 17px;
@@ -314,7 +395,10 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            transition: color 0.2s;
         }
+
+        .iem-card:hover .card-title { color: var(--pink); }
 
         .card-price {
             font-family: var(--font-mono);
@@ -322,6 +406,14 @@
             font-weight: 700;
             margin-bottom: 12px;
             color: var(--black);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-price::before {
+            content: '💰';
+            font-size: 14px;
         }
 
         .card-footer {
@@ -329,7 +421,13 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
+            padding-top: 12px;
+            border-top: 2px dashed var(--text-muted);
+            opacity: 0.8;
+            transition: opacity 0.2s;
         }
+
+        .iem-card:hover .card-footer { opacity: 1; }
 
         .card-actions {
             display: flex;
@@ -343,12 +441,21 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 10px;
+            padding: 5px 10px;
             border: var(--border-light);
             border-radius: 6px;
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            box-shadow: 2px 2px 0px var(--black);
+            transition: all 0.2s;
+        }
+
+        .badge:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px var(--black);
         }
 
         .badge-lime { background: var(--lime); }
@@ -568,39 +675,73 @@
         ============================================ */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
+            background: var(--card-bg);
+            border: var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--yellow) 0%, transparent 70%);
+            opacity: 0.1;
+            animation: emptyPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes emptyPulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.1); opacity: 0.15; }
         }
 
         .empty-illustration {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             margin: 0 auto 24px;
-            background: var(--yellow);
+            background: linear-gradient(135deg, var(--yellow), var(--orange));
             border: var(--border);
             border-radius: 50%;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
+            font-size: 56px;
             animation: emptyBounce 2s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes emptyBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
         }
 
         .empty-state h3 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
         }
 
         .empty-state p {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 24px;
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .empty-state .btn {
+            position: relative;
+            z-index: 1;
         }
 
         /* ============================================
@@ -757,14 +898,18 @@
            RESPONSIVE
         ============================================ */
         @media (max-width: 768px) {
-            .navbar-inner { padding: 12px 16px; }
+            .navbar-inner { padding: 10px 12px; gap: 8px; }
             .brand { font-size: 15px; }
-            .user-badge span:last-child { display: none; }
-            .main-content { padding: 20px 16px 48px; }
-            .page-header h1 { font-size: 22px; }
-            .cards-grid { grid-template-columns: 1fr; gap: 18px; }
-            .detail-grid { grid-template-columns: 1fr; gap: 20px; }
-            .form-container { padding: 24px 18px; }
+            .brand-text { display: none; }
+            .nav-right { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+            .nav-right .btn-sm { padding: 8px 10px; font-size: 11px; }
+            .nav-right .btn-sm i { margin-right: 4px; }
+            .user-badge { display: none; }
+            .main-content { padding: 16px 12px 40px; }
+            .page-header h1 { font-size: 20px; }
+            .cards-grid { grid-template-columns: 1fr; gap: 14px; }
+            .detail-grid { grid-template-columns: 1fr; gap: 16px; }
+            .form-container { padding: 20px 14px; }
             .form-row { grid-template-columns: 1fr; }
             .card-footer { flex-direction: column; align-items: stretch; }
             .card-actions { justify-content: stretch; }
@@ -772,7 +917,6 @@
         }
 
         @media (max-width: 480px) {
-            .brand-text { display: none; }
             .pagination li a, .pagination li span { min-width: 34px; height: 34px; font-size: 12px; }
         }
 
@@ -807,13 +951,37 @@
                 <span class="brand-icon"><i class="fa-solid fa-headphones"></i></span>
                 <span class="brand-text">IEM COLLECTION</span>
             </a>
+
             <div class="nav-right">
+                <!-- Home, Produk, Panduan -->
+                <a href="{{ route('home') }}" class="btn btn-white btn-sm">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a href="{{ route('products.index') }}" class="btn btn-white btn-sm">
+                    <i class="fa-solid fa-headphones"></i> Produk
+                </a>
+                <a href="{{ route('guide') }}" class="btn btn-white btn-sm">
+                    <i class="fa-solid fa-book"></i> Panduan
+                </a>
+
+                <!-- Cart -->
+                <a href="{{ route('cart.index') }}" class="btn btn-white btn-sm btn-cart" title="Keranjang">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    @if($cartCount > 0)
+                        <span class="cart-count">{{ $cartCount }}</span>
+                    @endif
+                </a>
+
+                <!-- Dark/Light Mode Toggle -->
+                <button class="btn btn-white btn-sm" id="themeToggle" title="Ganti Tema">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
 
                 @guest
-                    <a href="{{ route('login') }}" class="btn btn-white btn-sm">
-                        <i class="fa-solid fa-right-to-bracket"></i> Masuk
+                    <a href="{{ route('login') }}" class="btn btn-white btn-sm" title="Masuk">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login
                     </a>
-                    <a href="{{ route('register') }}" class="btn btn-yellow btn-sm">
+                    <a href="{{ route('register') }}" class="btn btn-yellow btn-sm" title="Daftar">
                         <i class="fa-solid fa-user-plus"></i> Daftar
                     </a>
                 @endguest
@@ -828,8 +996,8 @@
                     </div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn-logout">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+                        <button type="submit" class="btn-logout" title="Keluar">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
                         </button>
                     </form>
                 @endauth
@@ -864,6 +1032,33 @@
                 showConfirmButton: false,
             });
         @endif
+
+        // Dark/Light Mode Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.className = 'fa-solid fa-sun';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            if (newTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Cart count is now handled server-side via CartComposer
     </script>
 
     @stack('scripts')

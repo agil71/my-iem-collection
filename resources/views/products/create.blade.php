@@ -29,7 +29,7 @@
                 <div class="upload-placeholder">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                     <span>Klik atau drag foto ke sini</span>
-                    <span style="font-size:11px; color:#bbb;">JPG, PNG — Maks 2MB</span>
+                    <span style="font-size:11px; color:var(--text-muted);">JPG, PNG — Maks 2MB</span>
                 </div>
                 <img class="upload-preview" id="imagePreview" alt="Preview">
             </div>
@@ -101,6 +101,36 @@
                     <div class="form-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</div>
                 @enderror
             </div>
+        </div>
+
+        <!-- Sound Signature -->
+        <div class="form-group">
+            <label class="form-label">Sound Signature</label>
+            <select name="sound_signature" class="form-input" required>
+                <option value="">-- Pilih Sound Signature --</option>
+                <option value="Balanced">Balanced / Neutral - Rata, natural</option>
+                <option value="V-Shaped">V-Shaped - Bass + Trebleboost</option>
+                <option value="Warm">Warm - Bassbump, treble roll-off</option>
+                <option value="Bright">Bright - Treble forward, detail tinggi</option>
+                <option value="Basshead">Basshead - Bass dominant, sub-bass rumble</option>
+                <option value="Harman">Harman-like - Bass boost, balanced mids</option>
+                <option value="U-Shaped">U-Shaped - Warm, vocal forward</option>
+                <option value="Lean">Lean - Min bass, treble forward</option>
+            </select>
+        </div>
+
+        <!-- Frequency Response Data -->
+        <div class="form-group">
+            <label class="form-label">Frequency Response Graph (JSON)</label>
+            <textarea
+                name="frequency_data"
+                class="form-input"
+                rows="4"
+                placeholder='[{"freq":20,"db":-12},{"freq":50,"db":-3},{"freq":100,"db":0},{"freq":500,"db":2},{"freq":1000,"db":3},{"freq":2000,"db":1},{"freq":4000,"db":-2},{"freq":8000,"db":-8},{"freq":16000,"db":-15}]'
+            >{{ old('frequency_data') }}</textarea>
+            <small style="color: var(--text-muted); font-size: 12px;">
+                Format: Array JSON dengankey "freq" (Hz) dan "db" (dB)
+            </small>
         </div>
 
         <!-- Actions -->

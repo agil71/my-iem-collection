@@ -24,7 +24,6 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Redirect berbeda berdasarkan role
             if (Auth::user()->isAdmin()) {
                 return redirect()->route('products.index')
                     ->with('success', 'Selamat datang, Admin!');
@@ -57,7 +56,7 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'user', // ← HARDCODED, tidak bisa diubah dari form
+            'role'     => 'user',
         ]);
 
         return redirect()->route('login')
@@ -70,6 +69,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('products.index');
+        return redirect()->route('home');
     }
 }

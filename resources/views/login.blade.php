@@ -70,20 +70,19 @@
         .input-group { margin-bottom: 18px; }
         .input-group label { display: block; font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper .icon-left { position: absolute; left: 14px; z-index: 1; font-size: 15px; color: #999; transition: color 0.2s; pointer-events: none; }
-        .input-wrapper input { width: 100%; padding: 12px 42px 12px 42px; border: var(--border); border-radius: 8px; font-family: var(--font-main); font-size: 15px; background: #FAFAFA; color: var(--black); outline: none; transition: box-shadow 0.2s ease, background 0.2s ease, transform 0.15s ease; }
-        .input-wrapper input::placeholder { color: #bbb; }
-        .input-wrapper input:focus { background: #fff; box-shadow: var(--shadow-sm); transform: translate(-1px, -1px); }
-        .input-wrapper input:focus ~ .icon-left { color: var(--black); }
+.input-wrapper .icon-left { position: absolute; left: 14px; z-index: 1; font-size: 15px; color: var(--text-muted); transition: color 0.2s; pointer-events: none; }
+        .input-wrapper input { width: 100%; padding: 12px 42px 12px 42px; border: var(--border); border-radius: 8px; font-family: var(--font-main); font-size: 15px; background: var(--form-bg); color: var(--text); outline: none; transition: box-shadow 0.2s ease, background 0.2s ease, transform 0.15s ease; }
+        .input-wrapper input::placeholder { color: var(--text-muted); }
+        .input-wrapper input:focus { background: var(--form-focus); box-shadow: var(--shadow-sm); transform: translate(-1px, -1px); }
+        .input-wrapper input:focus ~ .icon-left { color: var(--text); }
 
-        .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 15px; color: #999; padding: 4px; z-index: 2; }
-        .toggle-pw:hover { color: var(--black); }
+        .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 15px; color: var(--text-muted); padding: 4px; z-index: 2; }
+        .toggle-pw:hover { color: var(--text); }
 
-        .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
         .remember-row input[type="checkbox"] { appearance: none; width: 20px; height: 20px; border: var(--border); border-radius: 4px; cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
         .remember-row input[type="checkbox"]:checked { background: var(--yellow); }
         .remember-row input[type="checkbox"]:checked::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; }
-        .remember-row label { font-size: 13px; cursor: pointer; color: #555; }
+        .remember-row label { font-size: 13px; cursor: pointer; color: var(--text-muted); }
 
         .btn-submit { width: 100%; padding: 14px; border: var(--border); border-radius: 8px; font-family: var(--font-main); font-size: 16px; font-weight: 700; cursor: pointer; background: var(--yellow); box-shadow: var(--shadow); color: var(--black); transition: box-shadow 0.2s ease, transform 0.15s ease; margin-top: 6px; position: relative; overflow: hidden; }
         .btn-submit:hover { transform: translate(2px, 2px); box-shadow: var(--shadow-hover); }
