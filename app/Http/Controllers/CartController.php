@@ -21,6 +21,10 @@ class CartController extends Controller
 
     public function add(Request $request, string $id): RedirectResponse
     {
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang!');
+        }
+
         $product = Product::findOrFail($id);
         $qty = (int) $request->input('qty', 1);
 
